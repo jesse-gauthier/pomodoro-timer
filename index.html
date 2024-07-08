@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pomodoro Timer</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body class="bg-gray-100 flex items-center justify-center h-screen">
+		<div class="bg-white p-8 rounded-lg shadow-lg max-w-sm text-center">
+			<h1 class="text-2xl font-bold mb-4">Pomodoro Timer</h1>
+			<div class="mb-4">
+				<span id="timer" class="text-4xl font-mono">25:00</span>
+			</div>
+			<div class="flex justify-center space-x-2 mb-4">
+				<div class="flex flex-col items-center">
+					<button
+						id="increase-minutes"
+						class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-700"
+					>
+						+
+					</button>
+					<span class="text-lg">Minutes</span>
+					<button
+						id="decrease-minutes"
+						class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700"
+					>
+						-
+					</button>
+				</div>
+				<div class="flex flex-col items-center">
+					<button
+						id="increase-seconds"
+						class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-700"
+					>
+						+
+					</button>
+					<span class="text-lg">Seconds</span>
+					<button
+						id="decrease-seconds"
+						class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-700"
+					>
+						-
+					</button>
+				</div>
+			</div>
+			<div class="flex justify-center space-x-4">
+				<button
+					id="start"
+					class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+				>
+					Start
+				</button>
+				<button
+					id="reset"
+					class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+				>
+					Reset
+				</button>
+			</div>
+		</div>
+
+		<script>
+			// JavaScript for Pomodoro Timer
+			let minutes = 25
+			let seconds = 0
+			let countdown
+			let isRunning = false
+
+			document.getElementById('start').addEventListener('click', () => {
+				if (!isRunning) {
+					startTimer()
+				}
+			})
+
+			document.getElementById('reset').addEventListener('click', resetTimer)
+
+			document
+				.getElementById('increase-minutes')
+				.addEventListener('click', () => {
+					if (!isRunning) {
+						minutes += 1
+						displayTime()
+					}
+				})
+
+			document
+				.getElementById('decrease-minutes')
+				.addEventListener('click', () => {
+					if (!isRunning && minutes > 0) {
+						minutes -= 1
+						displayTime()
+					}
+				})
+
+			document
+				.getElementById('increase-seconds')
+				.addEventListener('click', () => {
+					if (!isRunning) {
+						seconds = (seconds + 15) % 60
+						if (seconds < 15) {
+							minutes = Math.max(0, minutes - 1)
+						}
+						displayTime()
+					}
+				})
+
+			document
+				.getElementById('decrease-seconds')
+				.addEventListener('click', () => {
+					if (!isRunning) {
+						if (seconds < 15 && minutes > 0) {
+							minutes -= 1
+							seconds = (seconds - 15 + 60) % 60
+						} else {
+							seconds = (seconds - 15 + 60) % 60
+						}
+						displayTime()
+					}
+				})
+
+			function startTimer() {
+				const totalSeconds = minutes * 60 + seconds
+				const end = Date.now() + totalSeconds * 1000
+
+				isRunning = true
+				countdown = setInterval(() => {
+					const remaining = end - Date.now()
+					displayTime(remaining)
+
+					if (remaining <= 0) {
+						clearInterval(countdown)
+						isRunning = false
+					}
+				}, 1000)
+			}
+
+			function displayTime(remaining) {
+				if (remaining === undefined) {
+					remaining = (minutes * 60 + seconds) * 1000
+				}
+				const totalSeconds = Math.floor(remaining / 1000)
+				minutes = Math.floor(totalSeconds / 60)
+				seconds = totalSeconds % 60
+				document.getElementById('timer').textContent = `${
+					minutes < 10 ? '0' : ''
+				}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+			}
+
+			function resetTimer() {
+				clearInterval(countdown)
+				isRunning = false
+				minutes = 25
+				seconds = 0
+				displayTime()
+			}
+
+			// Initialize display
+			displayTime()
+		</script>
+	</body>
+</html>
